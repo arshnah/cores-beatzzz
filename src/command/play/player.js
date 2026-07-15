@@ -4,8 +4,8 @@ const { client } = require("../../core/main");
 const { playTrack } = require("../../utils/playTrack");
 const { connectToChannel } = require("../../utils/connectToChannel");
 
-const guildId = "550389429567750155";
-const channelId = "1437840244006191197";
+// const guildId = "550389429567750155";
+// const channelId = "1437840244006191197";
 
 // const guildId = "1117823396043034624";
 // const channelId = "1258844274212995073";
@@ -21,14 +21,14 @@ module.exports = {
     execute: async (message, args) => {
         console.log(message.content)
        
+        // let guild = client.guilds.cache.get(guildId);
+        // if (!guild) return message.reply("I am not in this guild!");
+        // let voiceChannel = guild.channels.cache.get(channelId);
+        // if (!voiceChannel) return message.reply("I cannot find the specified channel in this guild!");
 
-        // const guildId = message.guild.id;
-            
-        let guild = client.guilds.cache.get(guildId);
-        if (!guild) return message.reply("I am not in this guild!");
-        let voiceChannel = guild.channels.cache.get(channelId);
-        if (!voiceChannel) return message.reply("I cannot find the specified channel in this guild!");
-        // const voiceChannel = message.member.voice.channel;
+        
+        const guildId = message.guild.id;
+        const voiceChannel = message.member.voice.channel;
 
         if (!voiceChannel) {
             return message.reply('You need to join a voice channel first!');
