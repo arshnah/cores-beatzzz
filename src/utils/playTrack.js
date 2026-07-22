@@ -37,6 +37,13 @@ module.exports = {
         }
 
         const encodedTrack = typeof trackToPlay === 'string' ? trackToPlay : trackToPlay.encoded;
-        await player.playTrack({ track: encodedTrack });
+
+        try {
+            await player.playTrack({ track: { encoded: encodedTrack } });
+        } catch (error) {
+            console.error("Error playing track via Lavalink:", error);
+            const textChannel = client.textChannels.get(guildId);
+            if (textChannel) textChannel.send(`⚠️ Error starting playback for: **${title || query}**`);
+        }
     }
 };
