@@ -15,8 +15,10 @@
 
 ## 🚀 Recent Updates
 
-- 🔊 **Volume Control Command (`c!vol`)**: Added a dedicated `c!vol <0-200>` command to adjust player volume dynamically in real-time.
-- 🛠️ **Lavalink v4 API Fix**: Fixed REST update payload format (`{ track: { encoded: ... } }`) to resolve HTTP 400 Bad Request errors.
+- 🎨 **Rich Discord Embeds**: Converted all playback, queued, now-playing, skip, and error messages to clean Discord embeds (`#FF6B6B`).
+- 📜 **Queue Management Commands**: Added `c!queue [page]`, `c!remove <pos>`, `c!move <from> <to>`, and `c!np` for complete control over playback queues.
+- 🔊 **Volume Control (`c!vol`)**: Dynamic real-time volume adjustment (`c!vol 0-200`).
+- 🛠️ **Lavalink v4 Payload Fix**: Structured track payloads (`{ track: { encoded: ... } }`) to resolve HTTP 400 Bad Request errors.
 - 🛡️ **Bot Architecture Migration**: Fully removed all legacy selfbot libraries and converted the application to a standard Discord Bot account using Discord.js v14 and Shoukaku.
 
 ---
@@ -24,9 +26,10 @@
 ## ✨ Features
 
 - 🎧 **Lavalink Audio Core**: Crystal clear audio playback backed by Lavalink server node architecture.
-- 📜 **Queue System**: Full song queuing support with seamless auto-next playback.
+- 📜 **Full Queue Management**: View paginated queues (`c!queue`), reorder tracks (`c!move`), remove upcoming items (`c!remove`), and check track info (`c!np`).
+- 🎨 **Rich Discord Embeds**: Professional `#FF6B6B` embeds for now-playing, queue confirmations, and track information.
 - 🔊 **Volume Adjustment**: Real-time volume control ranging from `0` to `200%`.
-- ⚡ **Prefix Commands**: Simple and fast text commands (`c!play`, `c!skip`, `c!stop`, `c!vol`, `c!ping`).
+- ⚡ **Prefix Commands**: Simple and fast text commands (`c!play`, `c!skip`, `c!stop`, `c!queue`, `c!remove`, `c!move`, `c!np`, `c!vol`, `c!ping`).
 - 🌐 **Uptime Keep-Alive**: Built-in Express server for cloud hosting health-checks / pings.
 - 🛡️ **Bot Architecture**: Standard Discord Bot Account with Privileged Gateway Intents.
 
@@ -171,6 +174,10 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 | `play` | `c!play <song name or URL>` | Joins your voice channel and plays audio from YouTube/supported sources. |
 | `skip` | `c!skip` | Skips the current track and starts playing the next song in queue. |
 | `stop` | `c!stop` | Stops playback, clears the guild song queue, and leaves the voice channel. |
+| `queue` | `c!queue [page]` | Displays current playing track and paginated upcoming queue list. |
+| `remove` | `c!remove <position>` | Removes a track from the upcoming queue by 1-based position. |
+| `move` | `c!move <from> <to>` | Reorders a track from position `from` to position `to` in the upcoming queue. |
+| `np` | `c!np` | Shows detailed embed for the currently playing track. |
 | `vol` | `c!vol <0-200>` | Adjusts global playback volume between 0% and 200%. |
 | `ping` | `c!ping` | Replies with a connectivity confirmation message. |
 
@@ -181,12 +188,16 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 ```text
 cores-beatzzz/
 ├── src/
-│   ├── command/         # Command modules (play, skip, stop, vol, ping)
-│   │   ├── ping/
-│   │   ├── play/
-│   │   ├── skip/
-│   │   ├── stop/
-│   │   └── vol/
+│   ├── command/         # Command modules
+│   │   ├── move/        # c!move <from> <to>
+│   │   ├── nowplaying/  # c!np
+│   │   ├── ping/        # c!ping
+│   │   ├── play/        # c!play <query>
+│   │   ├── queue/       # c!queue [page]
+│   │   ├── remove/      # c!remove <pos>
+│   │   ├── skip/        # c!skip
+│   │   ├── stop/        # c!stop
+│   │   └── vol/         # c!vol <0-200>
 │   ├── config/          # Bot prefix and configuration
 │   ├── core/            # Client initialization, Lavalink setup, & web server
 │   │   ├── keepAlive.js
@@ -195,8 +206,9 @@ cores-beatzzz/
 │   ├── event/           # Event handlers (messageCreate, ready)
 │   │   ├── messageCreate/
 │   │   └── ready/
-│   ├── utils/           # Lavalink channel connection and track playback helpers
+│   ├── utils/           # Shared embeds and Lavalink helpers
 │   │   ├── connectToChannel.js
+│   │   ├── embeds.js
 │   │   └── playTrack.js
 │   └── index.js         # Main entry point
 ├── .env                 # Environment variables (git-ignored)
@@ -226,5 +238,5 @@ Verify that the Lavalink node has valid YouTube source plugins enabled and that 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by coreqt</sub>
+  <sub>Built with ❤️ by burnedglitchy and coreqt</sub>
 </div>

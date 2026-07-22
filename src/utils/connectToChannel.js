@@ -1,5 +1,6 @@
 const { client } = require("../core/main");
 const { playTrack } = require("./playTrack");
+const { nowPlayingEmbed, errorEmbed } = require("./embeds");
 
 module.exports = {
     connectToChannel: async (voiceChannel) => {
@@ -44,7 +45,15 @@ module.exports = {
             }
 
             const next = guildQueue.shift();
-            if (textChannel) textChannel.send(`▶ Now playing: **${next.title || next.query}**`);
+            if (textChannel) {
+                const embed = nowPlayingEmbed({
+                    title: next.title || next.query,
+                    url: next.track?.info?.uri,
+                    duration: next.track?.info?.length,
+                    thumbnail: next.track?.info?.artworkUrl
+                });
+                textChannel.send({ embeds: [embed] });
+            }
             await playTrack(guildId, next.query, next.title, next.track);
         });
 
@@ -55,7 +64,9 @@ module.exports = {
 
             if (guildQueue && guildQueue.length > 0) {
                 const next = guildQueue.shift();
-                if (textChannel) textChannel.send(`⚠️ Skipping error track: **${next.title || next.query}**`);
+                if (textChannel) {
+                    textChannel.send({ embeds: [errorEmbed(`Skipping error track: **${next.title || next.query}**`)] });
+                }
                 await playTrack(guildId, next.query, next.title, next.track);
             } else {
                 try {
