@@ -1,5 +1,4 @@
-const {client} = require('../../core/main.js');
-const {AudioPlayerStatus} = require('@discordjs/voice');
+const { client } = require('../../core/main.js');
 
 module.exports = {
     structure: {
@@ -10,17 +9,12 @@ module.exports = {
         const guildId = message.guild.id;
 
         const player = client.players.get(guildId);
-        if (!player || player.state.status !== AudioPlayerStatus.Playing) {
+        if (!player || !player.track) {
             return message.reply('No song is currently playing.');
         }
-        // Kill current streams and stop player (triggers Idle -> next track)
-        const procs = client.processes.get(guildId);
-        if (procs) {
-            procs.yt.kill('SIGKILL');
-            procs.ffmpeg.kill('SIGKILL');
-        }
-        player.stop();
+
+        await player.stopTrack();
         message.channel.send('⏭️ Skipped the current song.');
         return;
     }
-}
+};
