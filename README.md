@@ -13,11 +13,20 @@
 
 ---
 
+## 🚀 Recent Updates
+
+- 🔊 **Volume Control Command (`c!vol`)**: Added a dedicated `c!vol <0-200>` command to adjust player volume dynamically in real-time.
+- 🛠️ **Lavalink v4 API Fix**: Fixed REST update payload format (`{ track: { encoded: ... } }`) to resolve HTTP 400 Bad Request errors.
+- 🛡️ **Bot Architecture Migration**: Fully removed all legacy selfbot libraries and converted the application to a standard Discord Bot account using Discord.js v14 and Shoukaku.
+
+---
+
 ## ✨ Features
 
 - 🎧 **Lavalink Audio Core**: Crystal clear audio playback backed by Lavalink server node architecture.
 - 📜 **Queue System**: Full song queuing support with seamless auto-next playback.
-- ⚡ **Prefix Commands**: Simple and fast text commands (`c!play`, `c!skip`, `c!stop`, `c!ping`).
+- 🔊 **Volume Adjustment**: Real-time volume control ranging from `0` to `200%`.
+- ⚡ **Prefix Commands**: Simple and fast text commands (`c!play`, `c!skip`, `c!stop`, `c!vol`, `c!ping`).
 - 🌐 **Uptime Keep-Alive**: Built-in Express server for cloud hosting health-checks / pings.
 - 🛡️ **Bot Architecture**: Standard Discord Bot Account with Privileged Gateway Intents.
 
@@ -162,6 +171,7 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 | `play` | `c!play <song name or URL>` | Joins your voice channel and plays audio from YouTube/supported sources. |
 | `skip` | `c!skip` | Skips the current track and starts playing the next song in queue. |
 | `stop` | `c!stop` | Stops playback, clears the guild song queue, and leaves the voice channel. |
+| `vol` | `c!vol <0-200>` | Adjusts global playback volume between 0% and 200%. |
 | `ping` | `c!ping` | Replies with a connectivity confirmation message. |
 
 ---
@@ -171,11 +181,12 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 ```text
 cores-beatzzz/
 ├── src/
-│   ├── command/         # Command modules (play, skip, stop, ping)
+│   ├── command/         # Command modules (play, skip, stop, vol, ping)
 │   │   ├── ping/
 │   │   ├── play/
 │   │   ├── skip/
-│   │   └── stop/
+│   │   ├── stop/
+│   │   └── vol/
 │   ├── config/          # Bot prefix and configuration
 │   ├── core/            # Client initialization, Lavalink setup, & web server
 │   │   ├── keepAlive.js
