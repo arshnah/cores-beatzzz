@@ -1,5 +1,6 @@
-const {client} = require('../../core/main.js');
-const {AudioPlayerStatus} = require('@discordjs/voice');
+const { client } = require('../../core/main.js');
+const { EmbedBuilder } = require('discord.js');
+const { errorEmbed } = require('../../utils/embeds.js');
 
 module.exports = {
     structure: {
@@ -10,17 +11,17 @@ module.exports = {
         const guildId = message.guild.id;
 
         const player = client.players.get(guildId);
-        if (!player || player.state.status !== AudioPlayerStatus.Playing) {
-            return message.reply('No song is currently playing.');
+        if (!player || !player.track) {
+            return message.reply({ embeds: [errorEmbed('No song is currently playing.')] });
         }
-        // Kill current streams and stop player (triggers Idle -> next track)
-        const procs = client.processes.get(guildId);
-        if (procs) {
-            procs.yt.kill('SIGKILL');
-            procs.ffmpeg.kill('SIGKILL');
-        }
-        player.stop();
-        message.channel.send('⏭️ Skipped the current song.');
+
+        await player.stopTrack();
+        const embed = new EmbedBuilder()
+            .setColor('#FF6B6B')
+            .setDescription('⏭️ Skipped.')
+            .setFooter({ text: 'cores-beatzzz • Lavalink' });
+
+        message.channel.send({ embeds: [embed] });
         return;
     }
-}
+};
