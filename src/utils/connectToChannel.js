@@ -1,13 +1,6 @@
-const {
-    joinVoiceChannel,
-    createAudioPlayer,
-    entersState,
-    VoiceConnectionStatus,
-    AudioPlayerStatus
-} = require("@discordjs/voice");
-
 const { client } = require("../core/main");
 const { playTrack } = require("./playTrack");
+const { nowPlayingEmbed, errorEmbed } = require("./embeds");
 
 module.exports = {
     connectToChannel: async (voiceChannel) => {
@@ -15,81 +8,81 @@ module.exports = {
 
         const guildId = voiceChannel.guild.id;
 
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId,
-            adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-            selfDeaf: false,
-        });
-
-        connection.on("stateChange", (oldState, newState) => {
-            console.log(`[Voice ${guildId}] ${oldState.status} -> ${newState.status}`);
-        });
-
-        connection.on("error", console.error);
-
-        connection.on(VoiceConnectionStatus.Disconnected, async () => {
-            try {
-                await Promise.race([
-                    entersState(connection, VoiceConnectionStatus.Signalling, 5_000),
-                    entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
-                ]);
-            } catch {
-                connection.destroy();
-            }
-        });
-
-        try {
-            await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
-        } catch (err) {
-            connection.destroy();
-            throw err;
+        if (!client.shoukaku) {
+            throw new Error("Lavalink client is not initialized.");
         }
 
-        const player = createAudioPlayer();
-        connection.subscribe(player);
+        const node = client.shoukaku.options.nodeResolver(client.shoukaku.nodes);
+        if (!node) {
+            throw new Error("No available Lavalink node.");
+        }
 
-        client.connections.set(guildId, connection);
+        const player = await client.shoukaku.joinVoiceChannel({
+            guildId,
+            channelId: voiceChannel.id,
+            shardId: voiceChannel.guild.shardId || 0,
+            deaf: true,
+        });
+
         client.players.set(guildId, player);
 
-        player.on(AudioPlayerStatus.Idle, async() => {
+        player.on("end", async (reason) => {
+            if (reason?.type === "replaced") return;
+
             const guildQueue = client.queue.get(guildId);
             const textChannel = client.textChannels.get(guildId);
 
             if (!guildQueue || guildQueue.length === 0) {
-                connection.destroy();
+                try {
+                    await client.shoukaku.leaveVoiceChannel(guildId);
+                } catch (e) {
+                    console.error("Error leaving voice channel:", e);
+                }
                 client.queue.delete(guildId);
                 client.players.delete(guildId);
-                client.connections.delete(guildId);
-                client.processes.delete(guildId);
                 client.textChannels.delete(guildId);
                 return;
             }
 
             const next = guildQueue.shift();
-            if (textChannel) textChannel.send(`▶ Now playing: **${next.title || next.query}**`);
-            playTrack(guildId, next.query, next.title);
+            if (textChannel) {
+                const embed = nowPlayingEmbed({
+                    title: next.title || next.query,
+                    url: next.track?.info?.uri,
+                    duration: next.track?.info?.length,
+                    thumbnail: next.track?.info?.artworkUrl
+                });
+                textChannel.send({ embeds: [embed] });
+            }
+            await playTrack(guildId, next.query, next.title, next.track);
         });
 
-        player.on("error", (error) => {
-            console.error("Audio player error:", error);
+        player.on("exception", async (err) => {
+            console.error("Lavalink player error:", err);
             const guildQueue = client.queue.get(guildId);
             const textChannel = client.textChannels.get(guildId);
 
             if (guildQueue && guildQueue.length > 0) {
                 const next = guildQueue.shift();
-                if (textChannel) textChannel.send(`⚠️ Skipping error track: **${next.title || next.query}**`);
-                playTrack(guildId, next.query, next.title);
+                if (textChannel) {
+                    textChannel.send({ embeds: [errorEmbed(`Skipping error track: **${next.title || next.query}**`)] });
+                }
+                await playTrack(guildId, next.query, next.title, next.track);
             } else {
-                connection.destroy();
+                try {
+                    await client.shoukaku.leaveVoiceChannel(guildId);
+                } catch (e) {}
                 client.queue.delete(guildId);
                 client.players.delete(guildId);
-                client.connections.delete(guildId);
-                client.processes.delete(guildId);
                 client.textChannels.delete(guildId);
             }
         });
 
-        return connection;
+        player.on("stuck", async () => {
+            console.warn(`Lavalink player stuck on guild ${guildId}`);
+            await player.stopTrack();
+        });
+
+        return player;
     }
 };
