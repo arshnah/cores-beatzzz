@@ -19,6 +19,17 @@ client.queue = new Map();
 client.players = new Map();
 client.textChannels = new Map();
 
+client.commands = new Map();
+const commandsDir = path.join(__dirname, "..", "command");
+fs.readdirSync(commandsDir).forEach((commandFolder) => {
+    const commandDir = path.join(commandsDir, commandFolder);
+    const modules = fs
+        .readdirSync(commandDir)
+        .filter((file) => file.endsWith(".js"))
+        .map((file) => require(path.join(commandDir, file)));
+    client.commands.set(commandFolder, modules);
+});
+
 initLavalink(client);
 
 const port = process.env.PORT || 3000;
