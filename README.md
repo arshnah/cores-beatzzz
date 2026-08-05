@@ -238,5 +238,5 @@ Verify that the Lavalink node has valid YouTube source plugins enabled and that 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by coreqt(Maintainer), burnedglitchy(Vibe Coder/No Lifer) and WhatRage(Moral support)</sub>
+  <sub>Built with ❤️ by coreqt(Maintainer), burnedglitchy(Vibe Coder/No Lifer), WhatRage(Moral support) and arshnah(smh)</sub>
 </div>
