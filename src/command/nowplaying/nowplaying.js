@@ -9,14 +9,15 @@ module.exports = {
     execute: async (message, args) => {
         const guildId = message.guild.id;
         const player = client.shoukaku.players.get(guildId);
+        const current = client.nowPlaying.get(guildId);
 
-        if (!player || !player.track) {
+        if (!player || !player.track || !current) {
             return message.reply({ embeds: [errorEmbed("Nothing is currently playing.")] });
         }
 
-        const info = player.track.info;
+        const info = typeof current.track === 'object' ? current.track.info : null;
         const embed = nowPlayingEmbed({
-            title: info?.title || 'Unknown Track',
+            title: info?.title || current.title || current.query || 'Unknown Track',
             url: info?.uri,
             duration: info?.length,
             thumbnail: info?.artworkUrl

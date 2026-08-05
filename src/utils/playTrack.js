@@ -43,6 +43,7 @@ module.exports = {
 
         try {
             await player.playTrack({ track: { encoded: encodedTrack } });
+            client.nowPlaying.set(guildId, { query, title, track: trackToPlay });
         } catch (error) {
             console.error("Error playing track via Lavalink:", error);
             const textChannel = client.textChannels.get(guildId);

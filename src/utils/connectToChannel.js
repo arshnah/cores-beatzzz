@@ -27,12 +27,25 @@ module.exports = {
         client.players.set(guildId, player);
 
         player.on("end", async (reason) => {
-            if (reason?.type === "replaced") return;
+            if (reason?.reason === "replaced") return;
 
-            const guildQueue = client.queue.get(guildId);
+            const guildQueue = client.queue.get(guildId) || [];
             const textChannel = client.textChannels.get(guildId);
+            const justPlayed = client.nowPlaying.get(guildId);
+            const loopMode = client.loopMode.get(guildId) || "off";
+            const naturalEnd = reason?.reason === "finished";
 
-            if (!guildQueue || guildQueue.length === 0) {
+            if (loopMode === "track" && naturalEnd && justPlayed) {
+                await playTrack(guildId, justPlayed.query, justPlayed.title, justPlayed.track);
+                return;
+            }
+
+            if (loopMode === "queue" && naturalEnd && justPlayed) {
+                guildQueue.push(justPlayed);
+                client.queue.set(guildId, guildQueue);
+            }
+
+            if (guildQueue.length === 0) {
                 try {
                     await client.shoukaku.leaveVoiceChannel(guildId);
                 } catch (e) {
@@ -41,6 +54,8 @@ module.exports = {
                 client.queue.delete(guildId);
                 client.players.delete(guildId);
                 client.textChannels.delete(guildId);
+                client.nowPlaying.delete(guildId);
+                client.loopMode.delete(guildId);
                 return;
             }
 
@@ -75,6 +90,8 @@ module.exports = {
                 client.queue.delete(guildId);
                 client.players.delete(guildId);
                 client.textChannels.delete(guildId);
+                client.nowPlaying.delete(guildId);
+                client.loopMode.delete(guildId);
             }
         });
 

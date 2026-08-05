@@ -20,6 +20,8 @@ module.exports = { client };
 client.queue = new Map();
 client.players = new Map();
 client.textChannels = new Map();
+client.nowPlaying = new Map();
+client.loopMode = new Map();
 
 client.commands = new Map();
 const commandsDir = path.join(__dirname, "..", "command");

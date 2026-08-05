@@ -172,9 +172,14 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 | Command | Usage | Description |
 | :--- | :--- | :--- |
 | `play` | `c!play <song name or URL>` | Joins your voice channel and plays audio from YouTube/supported sources. |
+| `pause` | `c!pause` | Pauses the current track. |
+| `resume` | `c!resume` | Resumes a paused track. |
 | `skip` | `c!skip` | Skips the current track and starts playing the next song in queue. |
 | `stop` | `c!stop` | Stops playback, clears the guild song queue, and leaves the voice channel. |
 | `queue` | `c!queue [page]` | Displays current playing track and paginated upcoming queue list. |
+| `shuffle` | `c!shuffle` | Shuffles the upcoming queue. |
+| `loop` | `c!loop [off\|track\|queue]` | Cycles or sets the loop mode. `/skip` still moves on even mid-loop. |
+| `filter` | `c!filter <bassboost\|nightcore\|off>` | Applies (or clears) a Lavalink audio filter. |
 | `remove` | `c!remove <position>` | Removes a track from the upcoming queue by 1-based position. |
 | `move` | `c!move <from> <to>` | Reorders a track from position `from` to position `to` in the upcoming queue. |
 | `np` | `c!np` | Shows detailed embed for the currently playing track. |
@@ -189,12 +194,17 @@ Default Prefix: `c!` (Configurable in `src/config/config.json`)
 cores-beatzzz/
 ├── src/
 │   ├── command/         # Command modules
+│   │   ├── filter/      # c!filter <bassboost|nightcore|off>
+│   │   ├── loop/        # c!loop [off|track|queue]
 │   │   ├── move/        # c!move <from> <to>
 │   │   ├── nowplaying/  # c!np
+│   │   ├── pause/       # c!pause
 │   │   ├── ping/        # c!ping
 │   │   ├── play/        # c!play <query>
 │   │   ├── queue/       # c!queue [page]
 │   │   ├── remove/      # c!remove <pos>
+│   │   ├── resume/      # c!resume
+│   │   ├── shuffle/     # c!shuffle
 │   │   ├── skip/        # c!skip
 │   │   ├── stop/        # c!stop
 │   │   └── vol/         # c!vol <0-200>
