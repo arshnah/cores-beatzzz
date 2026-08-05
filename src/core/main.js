@@ -15,6 +15,8 @@ const client = new Client({
     ]
 });
 
+module.exports = { client };
+
 client.queue = new Map();
 client.players = new Map();
 client.textChannels = new Map();
@@ -52,5 +54,3 @@ eventList.forEach((event) => {
         }
     });
 });
-
-module.exports = { client };
